@@ -1,0 +1,6 @@
+node_modules/
+dist/
+z/
+bun.lock
+.DS_Store
+.claude
