@@ -64,8 +64,21 @@ function getFilePath(commentEl: Element): string {
 
   // Strategy 3: /changes React UI — file path is in h3 > a inside the #diff-{hash} container
   const diffContainer = commentEl.closest('[id^="diff-"]');
-  const fileLink = diffContainer?.querySelector<HTMLAnchorElement>('h3 a');
-  return fileLink?.textContent ? stripFormatChars(fileLink.textContent) : '';
+  if (diffContainer) {
+    const fileLink = diffContainer.querySelector<HTMLAnchorElement>('h3 a');
+    if (fileLink?.textContent) {
+      const href = fileLink.getAttribute('href') ?? '';
+      // File diff links are in-page anchors (#diff-...) or have ≥4 path segments
+      // (/owner/repo/blob/sha/path). Single-segment paths like /username are profile
+      // links and should not be treated as file paths.
+      const isAnchor = href.startsWith('#');
+      const isFileBlobPath = href.split('/').filter(Boolean).length >= 4;
+      if (isAnchor || isFileBlobPath) {
+        return stripFormatChars(fileLink.textContent);
+      }
+    }
+  }
+  return '';
 }
 
 /**
