@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PR Comment Prompter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Copy configurable prompts from GitHub PR comments for use with coding agents.",
   "icons": {
     "16": "icons/icon16.png",
