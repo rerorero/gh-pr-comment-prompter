@@ -37,18 +37,24 @@ function showCopiedFeedback(btn: HTMLButtonElement): void {
 
 async function getTemplate(): Promise<string> {
   return new Promise((resolve) => {
+    let done = false;
+    const finish = (val: string) => {
+      if (!done) { done = true; resolve(val); }
+    };
+    // Timeout fallback: if chrome.storage never responds (invalidated context), use default
+    setTimeout(() => finish(DEFAULT_TEMPLATE), 2000);
     try {
       chrome.storage.sync.get({ [STORAGE_KEY]: DEFAULT_TEMPLATE }, (items) => {
         if (chrome.runtime.lastError) {
           ERR('storage.sync.get error:', chrome.runtime.lastError.message);
-          resolve(DEFAULT_TEMPLATE);
+          finish(DEFAULT_TEMPLATE);
           return;
         }
-        resolve(items[STORAGE_KEY] as string);
+        finish(items[STORAGE_KEY] as string);
       });
     } catch (err) {
       ERR('storage unavailable (extension context invalidated?), using default:', err);
-      resolve(DEFAULT_TEMPLATE);
+      finish(DEFAULT_TEMPLATE);
     }
   });
 }
@@ -57,7 +63,6 @@ function attachClickHandler(btn: HTMLButtonElement, commentEl: Element): void {
   btn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     const template = await getTemplate();
     const ctx = extractContext(commentEl);
     const prompt = renderTemplate(template, ctx);

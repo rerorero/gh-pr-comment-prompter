@@ -127,8 +127,13 @@ function getLineNumber(commentEl: Element): string {
 
 /** Extract the plain-text body of a comment. */
 function getCommentText(commentEl: Element): string {
+  // Legacy HTML: .comment-body wraps .markdown-body
   const body = commentEl.querySelector('.comment-body');
-  return body?.textContent?.trim() ?? '';
+  if (body?.textContent?.trim()) return body.textContent.trim();
+
+  // React UI (/changes): no .comment-body — fall back to .markdown-body directly
+  const mdBody = commentEl.querySelector('.markdown-body');
+  return mdBody?.textContent?.trim() ?? '';
 }
 
 export function extractContext(commentEl: Element): CommentContext {
